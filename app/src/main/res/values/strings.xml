@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">البث المباشر للمباريات</string>
+    <string name="search_hint">ابحث عن قناة…</string>
+    <string name="all">الكل</string>
+    <string name="favorites">المفضلة</string>
+    <string name="added_favorites">تمت الإضافة إلى المفضلة ⭐</string>
+    <string name="removed_favorites">تمت الإزالة من المفضلة</string>
+    <string name="channels_count">%1$d قناة</string>
+    <string name="load_playlist">تحميل قائمة قنوات</string>
+    <string name="url_hint">https://example.com/playlist.m3u</string>
+    <string name="load">تحميل</string>
+    <string name="load_failed">تعذر تحميل قائمة القنوات، تحقق من الاتصال أو الرابط</string>
+    <string name="playback_error">تعذر تشغيل هذا البث، قد تكون القناة غير متوفرة حاليًا</string>
+    <string name="empty_title">لا توجد نتائج</string>
+    <string name="empty_subtitle">جرّب كلمة بحث أخرى أو فلترًا مختلفًا</string>
+    <string name="logo_desc">شعار القناة</string>
+    <string name="menu_favorites">المفضلة فقط</string>
+    <string name="menu_load_url">تحميل قائمة M3U من رابط</string>
+    <string name="menu_reset">الرجوع للقائمة المدمجة</string>
+    <string name="favorites_empty">لا توجد قنوات في المفضلة</string>
+</resources>

@@ -1,0 +1,2 @@
+-keep class com.wagdytech.livesports.** { *; }
+-dontwarn org.slf4j.**
