@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>لوحة تحكم تطبيق البث المباشر</title>
+<style>
+  :root { --bg:#0B0E14; --surface:#151A23; --stroke:#232B3B; --accent:#00D26A; --text:#F2F5FA; --dim:#98A2B3; }
+  * { box-sizing:border-box; margin:0; padding:0; font-family:'Segoe UI', Tahoma, sans-serif; }
+  body { background:var(--bg); color:var(--text); min-height:100vh; }
+  header { background:var(--surface); border-bottom:1px solid var(--stroke); padding:18px 24px; display:flex; align-items:center; gap:12px; }
+  header h1 { font-size:20px; }
+  header .dot { width:12px; height:12px; border-radius:50%; background:var(--accent); }
+  .wrap { display:flex; gap:24px; padding:24px; max-width:1100px; margin:0 auto; flex-wrap:wrap; }
+  .panel { background:var(--surface); border:1px solid var(--stroke); border-radius:14px; padding:20px; flex:1 1 460px; }
+  .panel h2 { font-size:15px; color:var(--accent); margin-bottom:14px; }
+  label { display:block; font-size:12.5px; color:var(--dim); margin:12px 0 5px; }
+  input[type=text], input[type=number], input[type=url], textarea { width:100%; background:#0E1219; border:1px solid var(--stroke); color:var(--text); border-radius:10px; padding:10px 12px; font-size:14px; }
+  input:focus, textarea:focus { outline:none; border-color:var(--accent); }
+  .row { display:flex; gap:12px; }
+  .row > div { flex:1; }
+  .colors { display:flex; align-items:center; gap:10px; margin-top:6px; }
+  input[type=color] { width:44px; height:36px; border:none; border-radius:8px; background:none; cursor:pointer; }
+  .check { display:flex; align-items:center; gap:8px; margin-top:14px; color:var(--dim); font-size:13px; }
+  .check input { width:18px; height:18px; accent-color:var(--accent); }
+  .btns { display:flex; gap:10px; margin-top:20px; flex-wrap:wrap; }
+  button { background:var(--accent); color:#04220F; border:none; border-radius:10px; padding:11px 18px; font-size:14px; font-weight:700; cursor:pointer; }
+  button.ghost { background:transparent; color:var(--text); border:1px solid var(--stroke); }
+  button:hover { filter:brightness(1.1); }
+  .phone { width:280px; margin:0 auto; border:2px solid var(--stroke); border-radius:26px; overflow:hidden; background:var(--bg); }
+  .phone .bar { padding:14px; font-weight:700; font-size:15px; }
+  .phone .search { margin:10px 12px; background:var(--surface); border:1px solid var(--stroke); border-radius:12px; padding:9px 12px; color:var(--dim); font-size:12px; }
+  .phone .chipbar { display:flex; gap:6px; padding:0 12px; }
+  .phone .chip { border:1px solid var(--stroke); border-radius:20px; padding:4px 12px; font-size:11px; color:var(--dim); }
+  .phone .chip.active { border-color:var(--accent); color:var(--accent); }
+  .phone .card { display:flex; gap:10px; align-items:center; margin:10px 12px; background:var(--surface); border:1px solid var(--stroke); border-radius:12px; padding:10px; }
+  .phone .logo { width:42px; height:42px; border-radius:10px; background:#1C2230; display:grid; place-items:center; }
+  .phone .card .l { font-size:13px; font-weight:700; }
+  .phone .card .s { font-size:10.5px; color:var(--dim); margin-top:3px; }
+  .hint { font-size:12px; color:var(--dim); margin-top:14px; line-height:1.8; border-top:1px dashed var(--stroke); padding-top:12px; }
+  .hint a { color:var(--accent); }
+  pre { background:#0E1219; border:1px solid var(--stroke); border-radius:10px; padding:12px; font-size:12px; direction:ltr; text-align:left; max-height:260px; overflow:auto; margin-top:12px; white-space:pre-wrap; }
+  .ok { color:var(--accent); font-size:13px; margin-top:8px; display:none; }
+</style>
+</head>
+<body>
+<header><span class="dot"></span><h1>لوحة تحكم تطبيق البث المباشر</h1></header>
+<div class="wrap">
+  <div class="panel">
+    <h2>⚙️ إعدادات التطبيق</h2>
+
+    <label>اسم التطبيق (يظهر في الشريط العلوي)</label>
+    <input type="text" id="appName" value="البث المباشر للمباريات">
+
+    <div class="row">
+      <div>
+        <label>اللون الرئيسي (Accent)</label>
+        <div class="colors"><input type="color" id="accentColor" value="#00d26a"><input type="text" id="accentHex" value="#00D26A"></div>
+      </div>
+      <div>
+        <label>لون الخلفية</label>
+        <div class="colors"><input type="color" id="bgColor" value="#0b0e14"><input type="text" id="bgHex" value="#0B0E14"></div>
+      </div>
+    </div>
+
+    <label>رابط قائمة القنوات M3U (اتركه فارغًا لاستخدام القائمة المدمجة)</label>
+    <input type="url" id="playlistUrl" placeholder="https://.../playlist.m3u">
+
+    <h2 style="margin-top:22px">📢 إعلان لكل المستخدمين</h2>
+    <label>عنوان الإعلان</label>
+    <input type="text" id="announcementTitle" placeholder="مثال: مباريات الليلة">
+    <label>نص الإعلان</label>
+    <textarea id="announcementMessage" rows="2" placeholder="اكتب الإعلان هنا…"></textarea>
+
+    <h2 style="margin-top:22px">🔄 إشعار تحديث أونلاين</h2>
+    <label>أحدث رقم إصدار (versionCode — ضع رقمًا أكبر من النسخة الحالية 3 ليظهر التحديث)</label>
+    <input type="number" id="latestVersionCode" value="0" min="0">
+    <label>رسالة التحديث</label>
+    <input type="text" id="updateMessage" placeholder="إصدار جديد بإصلاحات ومميزات">
+    <label>رابط تحميل الـ APK الجديد</label>
+    <input type="url" id="updateApkUrl" placeholder="https://github.com/WAGDY-TECH/Live-sport3/raw/main/app-release.apk">
+    <div class="check"><input type="checkbox" id="forceUpdate"><span>إجبار التحديث (لا يمكن للمستخدم التخطي)</span></div>
+
+    <div class="btns">
+      <button onclick="generate()">✨ توليد JSON</button>
+      <button class="ghost" onclick="downloadJson()">⬇️ تنزيل app-config.json</button>
+      <button class="ghost" onclick="copyJson()">📋 نسخ</button>
+    </div>
+    <div class="ok" id="okMsg">✅ تم النسخ! ارفع الملف على المستودع الآن</div>
+    <pre id="output">اضغط "توليد JSON" لعرض الناتج…</pre>
+
+    <div class="hint">
+      <b>طريقة النشر (أقل من دقيقة):</b><br>
+      1️⃣ اضغط "تنزيل app-config.json"<br>
+      2️⃣ افتح <a href="https://github.com/WAGDY-TECH/Live-sport3/upload/main" target="_blank">مستودعك ← Add file ← Upload files</a><br>
+      3️⃣ ارفع الملف (استبدال الموجود) ثم Commit changes<br>
+      4️⃣ مارس كل المستخدمين التغيير تلقائيًا عند فتح التطبيق 🎉
+    </div>
+  </div>
+
+  <div class="panel" style="flex:0 1 320px">
+    <h2>📱 معاينة حية</h2>
+    <div class="phone">
+      <div class="bar" id="pvBar">البث المباشر للمباريات</div>
+      <div class="search">🔍 ابحث عن قناة…</div>
+      <div class="chipbar"><span class="chip active">الكل</span><span class="chip">EG</span><span class="chip">UK</span></div>
+      <div class="card"><div class="logo">📺</div><div><div class="l">قناة رياضية</div><div class="s">Sports • EG</div></div></div>
+      <div class="card"><div class="logo">📺</div><div><div class="l">قناة أخرى</div><div class="s">Sports • UK</div></div></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function syncColor(colorId, hexId){
+    const c = document.getElementById(colorId), h = document.getElementById(hexId);
+    c.oninput = () => h.value = c.value.toUpperCase();
+    h.oninput = () => { if(/^#[0-9a-fA-F]{6}$/.test(h.value)) c.value = h.value; };
+    h.oninput();
+  }
+  syncColor('accentColor','accentHex');
+  syncColor('bgColor','bgHex');
+  document.getElementById('appName').oninput = () => document.getElementById('pvBar').textContent = document.getElementById('appName').value || 'التطبيق';
+  document.getElementById('accentHex').oninput = () => document.getElementById('pvBar').style.background = document.getElementById('accentHex').value;
+  document.getElementById('bgHex').oninput = () => document.querySelector('.phone').style.background = document.getElementById('bgHex').value;
+
+  function buildConfig(){
+    return {
+      appName: val('appName'),
+      accentColor: val('accentHex'),
+      backgroundColor: val('bgHex'),
+      playlistUrl: val('playlistUrl'),
+      announcementTitle: val('announcementTitle'),
+      announcementMessage: val('announcementMessage'),
+      latestVersionCode: parseInt(val('latestVersionCode')) || 0,
+      updateMessage: val('updateMessage'),
+      updateApkUrl: val('updateApkUrl'),
+      forceUpdate: document.getElementById('forceUpdate').checked
+    };
+  }
+  function val(id){ return document.getElementById(id).value.trim(); }
+  function generate(){
+    document.getElementById('output').textContent = JSON.stringify(buildConfig(), null, 2);
+  }
+  function downloadJson(){
+    generate();
+    const blob = new Blob([JSON.stringify(buildConfig(), null, 2)], {type:'application/json'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'app-config.json';
+    a.click();
+  }
+  function copyJson(){
+    generate();
+    navigator.clipboard.writeText(JSON.stringify(buildConfig(), null, 2)).then(() => {
+      const m = document.getElementById('okMsg');
+      m.style.display = 'block';
+      setTimeout(() => m.style.display='none', 2500);
+    });
+  }
+</script>
+</body>
+</html>

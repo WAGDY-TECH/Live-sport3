@@ -1,6 +1,10 @@
 package com.wagdytech.livesports
 
+import android.content.res.ColorStateList
+import android.graphics.Color
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.View
 import android.widget.EditText
 import android.widget.ProgressBar
@@ -8,15 +12,15 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.appbar.MaterialToolbar
+import com.google.android.material.card.MaterialCardView
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import java.net.URL
 
 class MainActivity : AppCompatActivity() {
@@ -26,6 +30,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var settings: SettingsStore
     private lateinit var countView: TextView
     private lateinit var progress: ProgressBar
+    private lateinit var toolbar: MaterialToolbar
+    private var remote: AppConfig? = null
 
     private var allChannels: List<Channel> = emptyList()
     private var selectedCountry: String? = null
@@ -40,6 +46,7 @@ class MainActivity : AppCompatActivity() {
         favorites = FavoritesStore(this)
         settings = SettingsStore(this)
         progress = findViewById(R.id.progressBar)
+        toolbar = findViewById(R.id.toolbar)
 
         adapter = ChannelAdapter(emptyList(), favorites, onPlay = ::openPlayer, onToggleFavorite = { ch ->
             favorites.toggle(ch.url)
@@ -57,13 +64,13 @@ class MainActivity : AppCompatActivity() {
         recycler.layoutManager = LinearLayoutManager(this)
         recycler.adapter = adapter
 
-        findViewById<EditText>(R.id.searchInput).addTextChangedListener(object : android.text.TextWatcher {
+        findViewById<EditText>(R.id.searchInput).addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, a: Int, b: Int, c: Int) {}
             override fun onTextChanged(s: CharSequence?, a: Int, b: Int, c: Int) {}
-            override fun afterTextChanged(s: android.text.Editable?) = applyFilters()
+            override fun afterTextChanged(s: Editable?) = applyFilters()
         })
 
-        findViewById<MaterialToolbar>(R.id.toolbar).setOnMenuItemClickListener { item ->
+        toolbar.setOnMenuItemClickListener { item ->
             when (item.itemId) {
                 R.id.action_favorites -> {
                     onlyFavorites = !onlyFavorites
@@ -84,13 +91,76 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+        RemoteConfig.loadCached(this)?.let { applyRemoteConfig(it) }
         loadPlaylist()
+        AdsManager.load(this)
+
+        lifecycleScope.launch {
+            val fresh = RemoteConfig.fetch(this@MainActivity)
+            if (fresh != null) {
+                applyRemoteConfig(fresh)
+                showRemoteDialogs(fresh)
+            }
+        }
+    }
+
+    private fun applyRemoteConfig(config: AppConfig) {
+        remote = config
+        config.appName?.let { toolbar.title = it }
+        val accent = config.accentColor?.let { safeColor(it) }
+        val background = config.backgroundColor?.let { safeColor(it) }
+        if (accent != null) {
+            toolbar.backgroundTintList = ColorStateList.valueOf(accent)
+            countView.setTextColor(accent)
+            findViewById<MaterialCardView>(R.id.searchCard).setStrokeColor(ColorStateList.valueOf(accent))
+        }
+        if (background != null) {
+            findViewById<View>(android.R.id.content).setBackgroundColor(background)
+            toolbar.backgroundTintList = ColorStateList.valueOf(
+                accent ?: ContextCompat.getColor(this, R.color.surface)
+            )
+        }
+        if (config.playlistUrl != null && settings.playlistUrl == null) {
+            loadPlaylist()
+        }
+    }
+
+    private fun showRemoteDialogs(config: AppConfig) {
+        when {
+            config.hasUpdate && config.latestVersionCode > BuildConfig.VERSION_CODE -> {
+                AlertDialog.Builder(this)
+                    .setTitle(getString(R.string.update_title))
+                    .setMessage(config.updateMessage ?: getString(R.string.update_message))
+                    .setCancelable(!config.forceUpdate)
+                    .setPositiveButton(R.string.update_now) { _, _ ->
+                        openUrl(config.updateApkUrl ?: return@setPositiveButton)
+                    }
+                    .show()
+            }
+            config.hasAnnouncement -> {
+                AlertDialog.Builder(this)
+                    .setTitle(config.announcementTitle)
+                    .setMessage(config.announcementMessage)
+                    .setPositiveButton(android.R.string.ok, null)
+                    .show()
+            }
+        }
+    }
+
+    private fun safeColor(hex: String): Int? = runCatching { Color.parseColor(hex) }.getOrNull()
+
+    private fun openUrl(url: String) {
+        runCatching {
+            startActivity(android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse(url)))
+        }.onFailure {
+            Toast.makeText(this, R.string.load_failed, Toast.LENGTH_SHORT).show()
+        }
     }
 
     private fun askPlaylistUrl() {
         val input = EditText(this).apply {
             hint = getString(R.string.url_hint)
-            setText(settings.playlistUrl ?: "")
+            setText(settings.playlistUrl ?: remote?.playlistUrl ?: "")
             setSingleLine()
         }
         AlertDialog.Builder(this)
@@ -107,16 +177,18 @@ class MainActivity : AppCompatActivity() {
             .show()
     }
 
+    private fun playlistSource(): String? = settings.playlistUrl ?: remote?.playlistUrl
+
     private fun loadPlaylist() {
         progress.visibility = View.VISIBLE
-        val remoteUrl = settings.playlistUrl
+        val url = playlistSource()
         lifecycleScope.launch {
-            val content = withContext(Dispatchers.IO) {
+            val content = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
                 runCatching {
-                    if (remoteUrl == null) {
+                    if (url == null) {
                         assets.open("channels.m3u").bufferedReader().use { it.readText() }
                     } else {
-                        URL(remoteUrl).openStream().bufferedReader().use { it.readText() }
+                        URL(url).openStream().bufferedReader().use { it.readText() }
                     }
                 }.getOrNull()
             }
@@ -178,6 +250,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun openPlayer(channel: Channel) {
-        PlayerActivity.start(this, channel.name, channel.url)
+        AdsManager.maybeShowBeforeOpen(this) {
+            PlayerActivity.start(this, channel.name, channel.url)
+        }
     }
 }

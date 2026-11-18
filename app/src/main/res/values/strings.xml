@@ -19,4 +19,7 @@
     <string name="menu_load_url">تحميل قائمة M3U من رابط</string>
     <string name="menu_reset">الرجوع للقائمة المدمجة</string>
     <string name="favorites_empty">لا توجد قنوات في المفضلة</string>
+    <string name="update_title">تحديث جديد متاح 🎉</string>
+    <string name="update_message">يتوفر إصدار جديد من التطبيق مع تحسينات ومميزات إضافية</string>
+    <string name="update_now">تحديث الآن</string>
 </resources>
