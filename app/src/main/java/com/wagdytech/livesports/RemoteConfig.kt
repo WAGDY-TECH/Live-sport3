@@ -17,7 +17,9 @@ data class AppConfig(
     val latestVersionCode: Int = 0,
     val updateMessage: String? = null,
     val updateApkUrl: String? = null,
-    val forceUpdate: Boolean = false
+    val forceUpdate: Boolean = false,
+    val proContactUrl: String? = null,
+    val proPrice: String? = null
 ) {
     val hasAnnouncement get() = !announcementTitle.isNullOrBlank() || !announcementMessage.isNullOrBlank()
     val hasUpdate get() = latestVersionCode > 0 && !updateApkUrl.isNullOrBlank()
@@ -60,7 +62,9 @@ object RemoteConfig {
             latestVersionCode = root.optInt("latestVersionCode", 0),
             updateMessage = root.optStringOrNull("updateMessage"),
             updateApkUrl = root.optStringOrNull("updateApkUrl"),
-            forceUpdate = root.optBoolean("forceUpdate", false)
+            forceUpdate = root.optBoolean("forceUpdate", false),
+            proContactUrl = root.optStringOrNull("proContactUrl"),
+            proPrice = root.optStringOrNull("proPrice")
         )
     }
 

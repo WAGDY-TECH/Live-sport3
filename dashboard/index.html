@@ -79,6 +79,12 @@
     <input type="text" id="updateMessage" placeholder="إصدار جديد بإصلاحات ومميزات">
     <label>رابط تحميل الـ APK الجديد</label>
     <input type="url" id="updateApkUrl" placeholder="https://github.com/WAGDY-TECH/Live-sport3/raw/main/app-release.apk">
+    <h2 style="margin-top:22px">👑 باقة برو</h2>
+    <label>رابط الاشتراك (واتساب/تيليجرام) — يفتح عند ضغط "اشترك الآن"</label>
+    <input type="url" id="proContactUrl" placeholder="https://wa.me/201000000000">
+    <label>نص السعر</label>
+    <input type="text" id="proPrice" placeholder="10 جنيه شهريًا">
+
     <div class="check"><input type="checkbox" id="forceUpdate"><span>إجبار التحديث (لا يمكن للمستخدم التخطي)</span></div>
 
     <div class="btns">
@@ -134,7 +140,9 @@
       latestVersionCode: parseInt(val('latestVersionCode')) || 0,
       updateMessage: val('updateMessage'),
       updateApkUrl: val('updateApkUrl'),
-      forceUpdate: document.getElementById('forceUpdate').checked
+      forceUpdate: document.getElementById('forceUpdate').checked,
+      proContactUrl: val('proContactUrl'),
+      proPrice: val('proPrice')
     };
   }
   function val(id){ return document.getElementById(id).value.trim(); }

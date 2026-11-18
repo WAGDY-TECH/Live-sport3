@@ -22,4 +22,26 @@
     <string name="update_title">تحديث جديد متاح 🎉</string>
     <string name="update_message">يتوفر إصدار جديد من التطبيق مع تحسينات ومميزات إضافية</string>
     <string name="update_now">تحديث الآن</string>
+    <string name="nav_channels">القنوات</string>
+    <string name="nav_matches">المباريات</string>
+    <string name="nav_news">الأخبار</string>
+    <string name="nav_pro">برو 👑</string>
+    <string name="tab_live">مباشر الآن</string>
+    <string name="tab_upcoming">القادمة</string>
+    <string name="tab_results">النتائج</string>
+    <string name="live_badge">● مباشر</string>
+    <string name="matches_error">تعذر تحميل المباريات، تأكد من اتصالك وجرّب مرة أخرى</string>
+    <string name="matches_empty">لا توجد مباريات في هذه القائمة حاليًا</string>
+    <string name="news_error">تعذر تحميل الأخبار، تأكد من اتصالك</string>
+    <string name="pro_hero">اشترك في باقة برو 👑</string>
+    <string name="pro_hero_sub">استمتع بتجربة بث بدون إعلانات ومميزات حصرية</string>
+    <string name="pro_features">• إزالة جميع الإعلانات\n• أولوية أعلى في جودة البث\n• قنوات وقوائم حصرية لأعضاء برو\n• دعم فني أسرع</string>
+    <string name="pro_subscribe">اشترك الآن</string>
+    <string name="pro_activate_title">هل اشتركت من قبل؟ أدخل كود التفعيل</string>
+    <string name="pro_code_hint">ضع كود التفعيل هنا</string>
+    <string name="pro_activate">تفعيل</string>
+    <string name="pro_active_title">🎉 حسابك برو مفعّل</string>
+    <string name="pro_active_sub">استمتع بالمشاهدة بدون إعلانات وجميع المميزات الحصرية</string>
+    <string name="pro_activated_ok">تم تفعيل باقة برو بنجاح 👑</string>
+    <string name="pro_code_wrong">كود غير صحيح، تأكد منه أو تواصل مع الدعم</string>
 </resources>

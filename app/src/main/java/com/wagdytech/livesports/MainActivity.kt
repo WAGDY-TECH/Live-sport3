@@ -1,12 +1,15 @@
 package com.wagdytech.livesports
 
+import android.content.Intent
 import android.content.res.ColorStateList
 import android.graphics.Color
+import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.View
 import android.widget.EditText
+import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
@@ -17,6 +20,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.appbar.MaterialToolbar
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
@@ -28,10 +32,16 @@ class MainActivity : AppCompatActivity() {
     private lateinit var adapter: ChannelAdapter
     private lateinit var favorites: FavoritesStore
     private lateinit var settings: SettingsStore
+    private lateinit var pro: ProStore
     private lateinit var countView: TextView
     private lateinit var progress: ProgressBar
     private lateinit var toolbar: MaterialToolbar
     private var remote: AppConfig? = null
+
+    private val matchAdapter = MatchAdapter()
+    private val newsAdapter = NewsAdapter { item -> openUrl(item.link) }
+    private var matchTab = "live"
+    private var matchLeague = 0
 
     private var allChannels: List<Channel> = emptyList()
     private var selectedCountry: String? = null
@@ -45,6 +55,7 @@ class MainActivity : AppCompatActivity() {
 
         favorites = FavoritesStore(this)
         settings = SettingsStore(this)
+        pro = ProStore(this)
         progress = findViewById(R.id.progressBar)
         toolbar = findViewById(R.id.toolbar)
 
@@ -91,9 +102,23 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+        setupMatches()
+        setupNews()
+        setupPro()
+
+        findViewById<BottomNavigationView>(R.id.bottomNav).setOnItemSelectedListener { item ->
+            when (item.itemId) {
+                R.id.nav_channels -> showPage(R.id.pageChannels)
+                R.id.nav_matches -> { showPage(R.id.pageMatches); refreshMatches() }
+                R.id.nav_news -> { showPage(R.id.pageNews); refreshNews() }
+                R.id.nav_pro -> { showPage(R.id.pagePro); refreshProUi() }
+            }
+            true
+        }
+
         RemoteConfig.loadCached(this)?.let { applyRemoteConfig(it) }
         loadPlaylist()
-        AdsManager.load(this)
+        AdsManager.init(this)
 
         lifecycleScope.launch {
             val fresh = RemoteConfig.fetch(this@MainActivity)
@@ -102,6 +127,115 @@ class MainActivity : AppCompatActivity() {
                 showRemoteDialogs(fresh)
             }
         }
+    }
+
+    private fun showPage(pageId: Int) {
+        listOf(R.id.pageChannels, R.id.pageMatches, R.id.pageNews, R.id.pagePro).forEach {
+            findViewById<View>(it).visibility = if (it == pageId) View.VISIBLE else View.GONE
+        }
+    }
+
+    private fun setupMatches() {
+        val tabs = findViewById<ChipGroup>(R.id.matchTabs)
+        val defs = listOf(
+            getString(R.string.tab_live) to "live",
+            getString(R.string.tab_upcoming) to "upcoming",
+            getString(R.string.tab_results) to "results"
+        )
+        defs.forEachIndexed { i, (label, key) ->
+            val chip = Chip(this).apply {
+                text = label
+                isCheckable = true
+                isChecked = i == 0
+                setOnClickListener {
+                    matchTab = key
+                    refreshMatches()
+                }
+            }
+            tabs.addView(chip)
+        }
+        findViewById<RecyclerView>(R.id.recyclerMatches).apply {
+            layoutManager = LinearLayoutManager(this@MainActivity)
+            adapter = matchAdapter
+        }
+    }
+
+    private fun refreshMatches() {
+        val status = findViewById<TextView>(R.id.matchesStatus)
+        status.visibility = View.GONE
+        lifecycleScope.launch {
+            val result = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+                when (matchTab) {
+                    "live" -> MatchesLoader.live()
+                    "upcoming" -> MatchesLoader.upcoming(leagueIds())
+                    else -> MatchesLoader.results(leagueIds())
+                }
+            }
+            matchAdapter.set(result)
+            if (result.isEmpty()) {
+                status.text = getString(R.string.matches_empty)
+                status.visibility = View.VISIBLE
+            }
+        }
+    }
+
+    private fun leagueIds(): List<Int> =
+        if (matchLeague == 0) Leagues.ALL.values.first()
+        else listOf(matchLeague)
+
+    private fun setupNews() {
+        findViewById<RecyclerView>(R.id.recyclerNews).apply {
+            layoutManager = LinearLayoutManager(this@MainActivity)
+            adapter = newsAdapter
+        }
+    }
+
+    private fun refreshNews() {
+        val status = findViewById<TextView>(R.id.newsStatus)
+        status.visibility = View.GONE
+        lifecycleScope.launch {
+            val items = NewsLoader.load()
+            newsAdapter.set(items)
+            if (items.isEmpty()) {
+                status.text = getString(R.string.news_error)
+                status.visibility = View.VISIBLE
+            }
+        }
+    }
+
+    private fun setupPro() {
+        findViewById<View>(R.id.btnSubscribe).setOnClickListener {
+            val url = remote?.proContactUrl
+            if (url.isNullOrEmpty()) {
+                Toast.makeText(this, R.string.news_error, Toast.LENGTH_SHORT).show()
+            } else openUrl(url)
+        }
+        findViewById<View>(R.id.btnActivate).setOnClickListener {
+            val code = findViewById<EditText>(R.id.proCodeInput).text.toString().trim()
+            if (code.isEmpty()) return@setOnClickListener
+            lifecycleScope.launch {
+                val codes = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+                    Net.getText(BuildConfig.PRO_CODES_URL)
+                }
+                val valid = runCatching {
+                    val arr = org.json.JSONArray(codes ?: "[]")
+                    (0 until arr.length()).any { arr.optString(it) == code }
+                }.getOrDefault(false)
+                if (valid) {
+                    pro.activate(code)
+                    Toast.makeText(this@MainActivity, R.string.pro_activated_ok, Toast.LENGTH_LONG).show()
+                    refreshProUi()
+                } else {
+                    Toast.makeText(this@MainActivity, R.string.pro_code_wrong, Toast.LENGTH_LONG).show()
+                }
+            }
+        }
+    }
+
+    private fun refreshProUi() {
+        val active = pro.isActive()
+        findViewById<View>(R.id.proActiveBox).visibility = if (active) View.VISIBLE else View.GONE
+        findViewById<View>(R.id.proOfferBox).visibility = if (active) View.GONE else View.VISIBLE
     }
 
     private fun applyRemoteConfig(config: AppConfig) {
@@ -151,7 +285,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun openUrl(url: String) {
         runCatching {
-            startActivity(android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse(url)))
+            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
         }.onFailure {
             Toast.makeText(this, R.string.load_failed, Toast.LENGTH_SHORT).show()
         }
@@ -250,8 +384,12 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun openPlayer(channel: Channel) {
-        AdsManager.maybeShowBeforeOpen(this) {
+        if (pro.isActive()) {
             PlayerActivity.start(this, channel.name, channel.url)
+        } else {
+            AdsManager.maybeShowBeforeOpen(this) {
+                PlayerActivity.start(this, channel.name, channel.url)
+            }
         }
     }
 }

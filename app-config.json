@@ -1,8 +1,6 @@
 {
   "appName": "البث المباشر للمباريات",
-
-  "accentColor": "#2563EB",
->>>>
+  "accentColor": "#00D26A",
   "backgroundColor": "#0B0E14",
   "playlistUrl": "",
   "announcementTitle": "",
@@ -10,5 +8,7 @@
   "latestVersionCode": 0,
   "updateMessage": "",
   "updateApkUrl": "",
-  "forceUpdate": false
+  "forceUpdate": false,
+  "proContactUrl": "https://wa.me/201000000000",
+  "proPrice": "10 جنيه شهريًا"
 }
