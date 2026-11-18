@@ -1,9 +1,9 @@
 {
   "appName": "البث المباشر للمباريات",
-  "accentColor": "#FFFF00",
+  "accentColor": "#00D26A",
   "backgroundColor": "#0B0E14",
   "playlistUrl": "",
-  "announcementTitle": "حدث الان",
+  "announcementTitle": "",
   "announcementMessage": "",
   "latestVersionCode": 0,
   "updateMessage": "",
