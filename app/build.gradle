@@ -7,6 +7,19 @@ android {
     namespace 'com.wagdytech.livesports'
     compileSdk 34
 
+    flavorDimensions += "distribution"
+
+    productFlavors {
+        full {
+            dimension = "distribution"
+            versionNameSuffix "-full"
+        }
+        store {
+            dimension = "distribution"
+            versionNameSuffix "-store"
+        }
+    }
+
     buildFeatures {
         buildConfig true
     }
@@ -15,8 +28,8 @@ android {
         applicationId "com.wagdytech.livesports"
         minSdk 21
         targetSdk 34
-        versionCode 5
-        versionName "1.4.0"
+        versionCode 6
+        versionName "1.5.0"
 
         buildConfigField "String", "ADMOB_INTERSTITIAL_ID", '"ca-app-pub-2183960712618957/1254216698"'
         buildConfigField "String", "REMOTE_CONFIG_URL", '"https://raw.githubusercontent.com/WAGDY-TECH/Live-sport3/main/app-config.json"'

@@ -71,6 +71,18 @@ app/src/main/
 - وحدة الإعلان: `ads.ADMOB_INTERSTITIAL_ID`
 - App ID في Manifest placeholder: `admobAppId`
 
+## 🏪 النسخ والحلول (Flavors)
+
+المشروع يبني نسختين:
+
+| النسخة | الأمر | المحتوى |
+|---|---|---|
+| **full** (توزيع مباشر APK) | `./gradlew assembleFullRelease` | 534+30 قناة مدمجة + باقة برو + تحديث أونلاين |
+| **store** (نشر على جوجل بلاي) | `./gradlew bundleStoreRelease` | **بدون أي قنوات مدمجة** (المستخدم يدخل رابط قائمته) وبدون خانة الدفع |
+
+ناتج المتجر: `app/build/outputs/bundle/storeRelease/app-store-release.aab` — ارفعه على Play Console.
+سياسة الخصوصية: صفحة [`privacy.html`](privacy.html) — فعّل GitHub Pages وضع رابطها في Play Console.
+
 ## ⚖️ إخلاء مسؤولية
 
 القنوات المدمجة مصدرها مشروع iptv-org الذي يجمع روابط بث متاحة علنًا على الإنترنت. هذا المشروع لأغراض تعليمية، والمستخدم مسؤول عن التوافق مع قوانين بلده وحقوق البث المحلية.

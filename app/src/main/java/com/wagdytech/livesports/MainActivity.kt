@@ -29,6 +29,8 @@ import java.net.URL
 
 class MainActivity : AppCompatActivity() {
 
+    private val isStore get() = BuildConfig.FLAVOR == "store"
+
     private lateinit var adapter: ChannelAdapter
     private lateinit var favorites: FavoritesStore
     private lateinit var settings: SettingsStore
@@ -116,8 +118,10 @@ class MainActivity : AppCompatActivity() {
             true
         }
 
+        setupNavigationVisibility()
         adapter.unlocked = { pro.isActive() }
         RemoteConfig.loadCached(this)?.let { applyRemoteConfig(it) }
+        if (playlistSource() == null && isStore) askPlaylistUrl()
         loadPlaylist()
         loadProPlaylist()
         AdsManager.init(this)
@@ -131,8 +135,15 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun setupNavigationVisibility() {
+        val nav = findViewById<BottomNavigationView>(R.id.bottomNav)
+        if (isStore) nav.menu.findItem(R.id.nav_pro).isVisible = false
+    }
+
     private fun showPage(pageId: Int) {
-        listOf(R.id.pageChannels, R.id.pageMatches, R.id.pageNews, R.id.pagePro).forEach {
+        val pages = if (isStore) listOf(R.id.pageChannels, R.id.pageMatches, R.id.pageNews)
+        else listOf(R.id.pageChannels, R.id.pageMatches, R.id.pageNews, R.id.pagePro)
+        pages.forEach {
             findViewById<View>(it).visibility = if (it == pageId) View.VISIBLE else View.GONE
         }
     }
@@ -258,7 +269,7 @@ class MainActivity : AppCompatActivity() {
                 accent ?: ContextCompat.getColor(this, R.color.surface)
             )
         }
-        if (config.playlistUrl != null && settings.playlistUrl == null) {
+        if (!isStore && config.playlistUrl != null && settings.playlistUrl == null) {
             loadPlaylist()
         }
     }
@@ -343,6 +354,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun loadProPlaylist() {
+        if (isStore) return
         lifecycleScope.launch {
             val proChannels = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
                 runCatching {
