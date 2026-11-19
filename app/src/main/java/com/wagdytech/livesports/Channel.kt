@@ -5,5 +5,6 @@ data class Channel(
     val url: String,
     val logo: String?,
     val group: String,
-    val country: String?
+    val country: String?,
+    val isPro: Boolean = false
 )

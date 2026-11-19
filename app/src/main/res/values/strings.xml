@@ -44,4 +44,10 @@
     <string name="pro_active_sub">استمتع بالمشاهدة بدون إعلانات وجميع المميزات الحصرية</string>
     <string name="pro_activated_ok">تم تفعيل باقة برو بنجاح 👑</string>
     <string name="pro_code_wrong">كود غير صحيح، تأكد منه أو تواصل مع الدعم</string>
+    <string name="quality_title">الجودة ⚙️</string>
+    <string name="resize_title">تكبير ⤢</string>
+    <string name="mode_fit">ملاءمة الشاشة</string>
+    <string name="mode_fill">ملء الشاشة</string>
+    <string name="mode_zoom">تكبير (قص الحواف)</string>
+    <string name="pro_blocked_toast">هذه قناة حصرية لأعضاء برو 👑 — اشترك أو أدخل كود التفعيل</string>
 </resources>

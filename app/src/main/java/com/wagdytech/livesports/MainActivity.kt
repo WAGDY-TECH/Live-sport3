@@ -116,8 +116,10 @@ class MainActivity : AppCompatActivity() {
             true
         }
 
+        adapter.unlocked = { pro.isActive() }
         RemoteConfig.loadCached(this)?.let { applyRemoteConfig(it) }
         loadPlaylist()
+        loadProPlaylist()
         AdsManager.init(this)
 
         lifecycleScope.launch {
@@ -225,6 +227,8 @@ class MainActivity : AppCompatActivity() {
                     pro.activate(code)
                     Toast.makeText(this@MainActivity, R.string.pro_activated_ok, Toast.LENGTH_LONG).show()
                     refreshProUi()
+                    adapter.unlocked = { pro.isActive() }
+                    adapter.filter(query, selectedCountry, onlyFavorites)
                 } else {
                     Toast.makeText(this@MainActivity, R.string.pro_code_wrong, Toast.LENGTH_LONG).show()
                 }
@@ -338,6 +342,21 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun loadProPlaylist() {
+        lifecycleScope.launch {
+            val proChannels = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+                runCatching {
+                    assets.open("channels-pro.m3u").bufferedReader().use { M3UParser.parse(it.readText(), isPro = true) }
+                }.getOrDefault(emptyList())
+            }
+            if (proChannels.isNotEmpty()) {
+                allChannels = allChannels + proChannels
+                adapter.replaceSource(allChannels)
+                applyFilters()
+            }
+        }
+    }
+
     private fun buildCountryChips() {
         val chipGroup = findViewById<ChipGroup>(R.id.chipGroup)
         chipGroup.removeAllViews()
@@ -384,7 +403,12 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun openPlayer(channel: Channel) {
-        if (pro.isActive()) {
+        if (channel.isPro && !pro.isActive()) {
+            Toast.makeText(this, R.string.pro_blocked_toast, Toast.LENGTH_LONG).show()
+            findViewById<BottomNavigationView>(R.id.bottomNav).selectedItemId = R.id.nav_pro
+            return
+        }
+        if (pro.isActive() || channel.isPro) {
             PlayerActivity.start(this, channel.name, channel.url)
         } else {
             AdsManager.maybeShowBeforeOpen(this) {

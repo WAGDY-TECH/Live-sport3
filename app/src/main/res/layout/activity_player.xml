@@ -11,4 +11,30 @@
         android:layout_height="match_parent"
         app:show_buffering="when_playing"
         app:surface_type="surface_view" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="start|bottom"
+        android:layout_marginStart="16dp"
+        android:layout_marginBottom="16dp"
+        android:orientation="vertical">
+
+        <Button
+            android:id="@+id/btnQuality"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:backgroundTint="@color/surface"
+            android:text="@string/quality_title"
+            android:textColor="@color/text_primary" />
+
+        <Button
+            android:id="@+id/btnResize"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:backgroundTint="@color/surface"
+            android:text="@string/resize_title"
+            android:textColor="@color/text_primary" />
+    </LinearLayout>
 </FrameLayout>

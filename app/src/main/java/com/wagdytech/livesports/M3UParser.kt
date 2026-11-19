@@ -4,7 +4,7 @@ object M3UParser {
 
     private val attrRegex = Regex("([\\w-]+)=\"([^\"]*)\"")
 
-    fun parse(content: String): List<Channel> {
+    fun parse(content: String, isPro: Boolean = false): List<Channel> {
         val channels = ArrayList<Channel>()
         var name: String? = null
         var logo: String? = null
@@ -32,7 +32,8 @@ object M3UParser {
                             url = line,
                             logo = logo,
                             group = group ?: "عام",
-                            country = country
+                            country = country,
+                            isPro = isPro
                         )
                     )
                     name = null; logo = null; group = null; country = null

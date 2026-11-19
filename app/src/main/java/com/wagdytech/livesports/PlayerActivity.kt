@@ -11,11 +11,14 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
+import androidx.media3.common.C
 import androidx.media3.common.MediaItem
 import androidx.media3.common.PlaybackException
 import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.ui.AspectRatioFrameLayout
 import androidx.media3.ui.PlayerView
+import androidx.media3.ui.TrackSelectionDialogBuilder
 
 class PlayerActivity : AppCompatActivity() {
 
@@ -34,6 +37,33 @@ class PlayerActivity : AppCompatActivity() {
         playerView = findViewById(R.id.playerView)
         playerView.setControllerShowTimeoutMs(3500)
         setTitle(title)
+
+        findViewById<android.view.View>(R.id.btnQuality).setOnClickListener {
+            player?.let { p ->
+                TrackSelectionDialogBuilder(this, getString(R.string.quality_title), p, C.TRACK_TYPE_VIDEO)
+                    .build()
+                    .show()
+            }
+        }
+        findViewById<android.view.View>(R.id.btnResize).setOnClickListener {
+            val next = when (playerView.resizeMode) {
+                AspectRatioFrameLayout.RESIZE_MODE_FIT -> AspectRatioFrameLayout.RESIZE_MODE_FILL
+                AspectRatioFrameLayout.RESIZE_MODE_FILL -> AspectRatioFrameLayout.RESIZE_MODE_ZOOM
+                else -> AspectRatioFrameLayout.RESIZE_MODE_FIT
+            }
+            playerView.resizeMode = next
+            android.widget.Toast.makeText(
+                this,
+                getString(
+                    when (next) {
+                        AspectRatioFrameLayout.RESIZE_MODE_ZOOM -> R.string.mode_zoom
+                        AspectRatioFrameLayout.RESIZE_MODE_FILL -> R.string.mode_fill
+                        else -> R.string.mode_fit
+                    }
+                ),
+                android.widget.Toast.LENGTH_SHORT
+            ).show()
+        }
 
         if (url == null) {
             finish()

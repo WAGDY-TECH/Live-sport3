@@ -16,6 +16,8 @@ class ChannelAdapter(
     private val onToggleFavorite: (Channel) -> Unit
 ) : RecyclerView.Adapter<ChannelAdapter.ViewHolder>() {
 
+    var unlocked: () -> Boolean = { false }
+
     private var full: List<Channel> = channels
 
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -32,9 +34,11 @@ class ChannelAdapter(
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val channel = channels[position]
-        holder.name.text = channel.name
+        val locked = channel.isPro && !unlocked()
+        holder.name.text = if (locked) "🔒 ${channel.name}" else channel.name
         val flag = channel.country ?: ""
-        holder.meta.text = listOf(channel.group, flag).filter { it.isNotBlank() }.joinToString(" • ")
+        holder.meta.text = if (locked) "قناة برو — فعّل الكود للمشاهدة" else
+            listOf(channel.group, flag).filter { it.isNotBlank() }.joinToString(" • ")
 
         if (channel.logo != null) {
             Glide.with(holder.itemView.context).load(channel.logo)
