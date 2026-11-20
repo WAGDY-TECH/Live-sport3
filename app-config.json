@@ -10,5 +10,8 @@
   "updateApkUrl": "",
   "forceUpdate": false,
   "proContactUrl": "https://wa.me/966543769043",
-  "proPrice": "10 جنيه شهريًا"
+  "proPrice": "10 جنيه شهريًا",
+  "matchesApiUrl": "https://site.api.espn.com/apis/site/v2/sports/soccer",
+  "newsApiUrl": "https://feeds.bbci.co.uk/sport/football/rss.xml",
+  "sportsDbKey": "123"
 }

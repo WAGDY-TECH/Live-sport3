@@ -85,6 +85,14 @@
     <label>نص السعر</label>
     <input type="text" id="proPrice" placeholder="10 جنيه شهريًا">
 
+    <h2 style="margin-top:22px">⚡ مصادر المباريات والأخبار (API مجاني)</h2>
+    <label>رابط API المباريات المباشرة (ESPN — مجاني بدون مفتاح)</label>
+    <input type="url" id="matchesApiUrl" placeholder="https://site.api.espn.com/apis/site/v2/sports/soccer">
+    <label>رابط الأخبار RSS</label>
+    <input type="url" id="newsApiUrl" placeholder="https://feeds.bbci.co.uk/sport/football/rss.xml">
+    <label>مفتاح TheSportsDB الاحتياطي (مجاني من thesportsdb.com)</label>
+    <input type="text" id="sportsDbKey" placeholder="123">
+
     <div class="check"><input type="checkbox" id="forceUpdate"><span>إجبار التحديث (لا يمكن للمستخدم التخطي)</span></div>
 
     <div class="btns">
@@ -142,7 +150,10 @@
       updateApkUrl: val('updateApkUrl'),
       forceUpdate: document.getElementById('forceUpdate').checked,
       proContactUrl: val('proContactUrl'),
-      proPrice: val('proPrice')
+      proPrice: val('proPrice'),
+      matchesApiUrl: val('matchesApiUrl'),
+      newsApiUrl: val('newsApiUrl'),
+      sportsDbKey: val('sportsDbKey')
     };
   }
   function val(id){ return document.getElementById(id).value.trim(); }

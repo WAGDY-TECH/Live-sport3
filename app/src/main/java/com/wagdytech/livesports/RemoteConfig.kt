@@ -19,7 +19,10 @@ data class AppConfig(
     val updateApkUrl: String? = null,
     val forceUpdate: Boolean = false,
     val proContactUrl: String? = null,
-    val proPrice: String? = null
+    val proPrice: String? = null,
+    val matchesApiUrl: String? = null,
+    val newsApiUrl: String? = null,
+    val sportsDbKey: String? = null
 ) {
     val hasAnnouncement get() = !announcementTitle.isNullOrBlank() || !announcementMessage.isNullOrBlank()
     val hasUpdate get() = latestVersionCode > 0 && !updateApkUrl.isNullOrBlank()
@@ -52,7 +55,7 @@ object RemoteConfig {
 
     private fun parse(json: String): AppConfig {
         val root = JSONObject(json)
-        return AppConfig(
+        val config = AppConfig(
             appName = root.optStringOrNull("appName"),
             accentColor = root.optStringOrNull("accentColor"),
             backgroundColor = root.optStringOrNull("backgroundColor"),
@@ -64,8 +67,16 @@ object RemoteConfig {
             updateApkUrl = root.optStringOrNull("updateApkUrl"),
             forceUpdate = root.optBoolean("forceUpdate", false),
             proContactUrl = root.optStringOrNull("proContactUrl"),
-            proPrice = root.optStringOrNull("proPrice")
+            proPrice = root.optStringOrNull("proPrice"),
+            matchesApiUrl = root.optStringOrNull("matchesApiUrl"),
+            newsApiUrl = root.optStringOrNull("newsApiUrl"),
+            sportsDbKey = root.optStringOrNull("sportsDbKey")
         )
+        // تحديث مصادر المباريات والأخبار أولًا بأول من لوحة التحكم
+        config.matchesApiUrl?.let { ApiEndpoints.matchesApiUrl = it }
+        config.newsApiUrl?.let { ApiEndpoints.newsApiUrl = it }
+        config.sportsDbKey?.let { ApiEndpoints.sportsDbKey = it }
+        return config
     }
 
     private fun JSONObject.optStringOrNull(key: String): String? {
